@@ -44,6 +44,8 @@ public class AdvancedMoveController : MovementController
     public float chainJumpWindow = 0.1f;
     [Tooltip("Time window to buffer jump input before landing")]
     public float jumpBufferTime = 0.17f;
+    [Tooltip("Time window you need to be grounded for before jumping")]
+    public float groundedTimeBeforeJump = 0.05f;
 
     [Header("Jump Audio Feedback")]
     [Tooltip("Sound effect played when jumping")]
@@ -115,7 +117,7 @@ public class AdvancedMoveController : MovementController
     public bool RequestJump(bool fromLeniancyTimer = false)
     {
         lastJumpRequestTime = Time.time;
-        if (((timeGrounded > 0.08f && slopeAngle < maxTraversableSlope) || overrideCanJump) && lastJumpedTime + 0.15f < lastJumpRequestTime) {
+        if (((timeGrounded > groundedTimeBeforeJump && slopeAngle < maxTraversableSlope) || overrideCanJump) && lastJumpedTime + 0.15f < lastJumpRequestTime) {
 
             PerformJump();
             return true;
@@ -129,7 +131,7 @@ public class AdvancedMoveController : MovementController
     private void PerformJump()
     {
         // Prevent jumping too close together from last jump.
-        if (lastJumpedTime + 0.15f > Time.time)
+        if (lastJumpedTime + 0.15f > Time.time || timeGrounded < groundedTimeBeforeJump)
             return;
         lastJumpRequestTime = -50.0f;
         lastJumpedTime = Time.time;
